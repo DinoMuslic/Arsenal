@@ -1,0 +1,189 @@
+<div class="h-100 d-flex align-items-center justify-content-center flex-column">
+    <div class="fs-1" >WELCOME TO THE HOME PAGE</div>
+
+    <div><br></div>
+    <button id="get-users-btn" class="btn btn-outline-primary">Get users</button>
+
+    <div><br></div>
+    <div><br></div>
+
+    <table id="users-table" class="table table-bordered table-hover table-striped w-75">
+        <thead class="table-success">
+
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Name</th>
+            <th scope="col">Surname</th>
+            <th scope="col">Age</th>
+            <th scope="col">Email</th>
+            <th scope="col">Password</th>
+            <th scope="col">City</th>
+          </tr>
+        </thead>
+
+        <tbody class="table-primary">
+          
+        </tbody>
+    </table>
+
+    <div><br></div>
+    <div><br></div>
+
+    <form method="post" id="user-city-form" class="border border-primary rounded p-5">
+        <div class="fs-4 text-primary">Enter User ID</div> <br>
+
+        <div class="mb-3">
+          <label for="exampleInputCityId" class="form-label">ID</label>
+          <input name="id" class="form-control" id="exampleInputCityId">
+        </div>
+
+        <div id="user-city">Not Defined</div>
+
+        <br><br>
+        <button id="submitIdBtn" type="submit" class="btn btn-outline-primary">Enter</button>
+    </form>
+</div>
+
+
+<script>
+    $("#get-users-btn").click(() => {
+        $("#users-table tbody").html("");
+
+        $.get(Constants.get_api_base_url() + "backend/users")
+        .done(function(data) {
+            toastr.success("Success!");
+            console.log(data.data);
+
+            // const response = JSON.parse(data); <- odma se dobije json objekat nema vise echo-a  
+            const users = data.data;
+
+            users.forEach(user => {
+                const row = `<tr>
+                    <th scope="row">${user.id}</th>
+                    <td>${user.name}</td>
+                    <td>${user.surname}</td>
+                    <td>${user.age}</td>
+                    <td>${user.email}</td>
+                    <td>${user.password}</td>
+                    <td>${user.city_id}</td>
+                </tr>`;
+                $("#users-table tbody").append(row);
+            });
+        })
+        .fail(function() {
+            toastr.error("An Error occured!");
+        })
+    });
+
+    $("#submitIdBtn").click(e => {
+        e.preventDefault();
+        console.log("!asdas");
+        let data = FormValidation.serialize_form("#user-city-form");
+        console.log(data);
+        
+        $.get(Constants.get_api_base_url() + "backend/user_city_name", data)
+        .done(function (data) {
+            let cityName = data.data != false ? data.data['name'] : "Not Defined";
+            $("#user-city").html(cityName);
+        })
+        .fail(function() {
+            toastr.error("An error occured");
+        });
+    });
+</script>
+
+<!-- <div class="h-100 d-flex align-items-center justify-content-center flex-column">
+    <div class="fs-1">WELCOME TO THE HOME PAGE</div>
+
+    <div><br></div>
+    <button id="get-users-btn" class="btn btn-outline-primary">Get users</button>
+
+    <div><br></div>
+    <div><br></div>
+
+    <table id="users-table" class="table table-bordered table-hover table-striped w-75">
+        <thead class="table-success">
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Name</th>
+            <th scope="col">Surname</th>
+            <th scope="col">Age</th>
+            <th scope="col">Email</th>
+            <th scope="col">Password</th>
+            <th scope="col">City</th>
+          </tr>
+        </thead>
+        <tbody class="table-primary">
+        </tbody>
+    </table>
+
+    <div><br></div>
+    <div><br></div>
+
+    <form method="post" id="user-city-form" class="border border-primary rounded p-5">
+        <div class="fs-4 text-primary">Enter User ID</div> <br>
+        <div class="mb-3">
+          <label for="exampleInputCityId" class="form-label">ID</label>
+          <input name="id" class="form-control" id="exampleInputCityId">
+        </div>
+        <div id="user-city">Not Defined</div>
+        <br><br>
+        <button id="submitIdBtn" type="submit" class="btn btn-outline-primary">Enter</button>
+    </form>
+</div>
+
+<script>
+    $("#get-users-btn").click(() => {
+        $("#users-table tbody").html("");
+
+        $.get(Constants.get_api_base_url() + "backend/users")
+        .done(function(data) {
+            toastr.success("Success!");
+            const users = data.data;
+
+            const userPromises = users.map(user => {
+                return $.get(Constants.get_api_base_url() + "backend/user_city_name", { id: user.id })
+                    .then(cityData => {
+                        user.city_name = cityData.data ? cityData.data['name'] : "Unknown";
+                        return user;
+                    });
+            });
+
+            Promise.all(userPromises)
+                .then(usersWithCityNames => {
+                    usersWithCityNames.forEach(user => {
+                        const row = `<tr>
+                            <th scope="row">${user.id}</th>
+                            <td>${user.name}</td>
+                            <td>${user.surname}</td>
+                            <td>${user.age}</td>
+                            <td>${user.email}</td>
+                            <td>${user.password}</td>
+                            <td>${user.city_name}</td>
+                        </tr>`;
+                        $("#users-table tbody").append(row);
+                    });
+                })
+                .catch(() => {
+                    toastr.error("An Error occurred while fetching city names!");
+                });
+        })
+        .fail(function() {
+            toastr.error("An Error occurred while fetching users!");
+        });
+    });
+
+    $("#submitIdBtn").click(e => {
+        e.preventDefault();
+        let data = FormValidation.serialize_form("#user-city-form");
+        
+        $.get(Constants.get_api_base_url() + "backend/user_city_name", data)
+        .done(function(data) {
+            let cityName = data.data ? data.data['name'] : "Not Defined";
+            $("#user-city").html(cityName);
+        })
+        .fail(function() {
+            toastr.error("An error occurred while fetching the city name!");
+        });
+    });
+</script> -->

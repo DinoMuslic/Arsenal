@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Final Exam Login</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+      crossorigin="anonymous"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/toastr@2.1.4/build/toastr.min.css"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <main>
+      <div class="container marketing" style="margin-top: 100px;">
+        <!-- Three columns of text below the carousel -->
+        <div class="row">
+          <form id="login-form">
+            <div class="mb-3">
+              <label class="form-label">Email address</label>
+              <input type="email" name="email" class="form-control" />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Password</label>
+              <input type="password" name="password" class="form-control" />
+            </div>
+            <button type="submit" id="loginBtn" class="btn btn-primary">Login</button>
+          </form>
+        </div>
+      </div>
+    </main>
+  
+    <script src="jquery-3.7.1.min.js"></script>
+
+    <script type="text/javascript">
+      /*TODO #1 Add code to check whether user is logged in or not.
+       * If user is already logged in (token exists) redirect to index.html
+       */
+
+      /* TODO #2
+       * If user is not logged in (token does not exists or is not valid) implement AJAX call to rest/final/login
+       * when login button is clicked
+       */
+
+      $(document).ready(() => {
+        function set_to_localstorage(key, value) {
+          window.localStorage.setItem(key, JSON.stringify(value));
+        }
+        function get_from_localstorage(key) {
+          return JSON.parse(window.localStorage.getItem(key));
+        }
+
+        var FormValidation = {
+          serialize_form: function (form) {
+            let result = {};
+            $.each($(form).serializeArray(), function () {
+              result[this.name] = this.value;
+            });
+            return result;
+          },
+        };
+
+        var Constants = {
+          get_api_base_url: function () { 
+              if(location.hostname == 'localhost') {
+                  return 'http://localhost:80/final-midterm-2023/';
+              } else {
+                  return "https://sea-turtle-app-98lri.ondigitalocean.app/";
+              }
+          
+          } 
+          // API_BASE_URL: 'http://localhost:80/WebProgProject/',
+      }
+
+      let user = get_from_localstorage("user");
+
+      if(user && user.token) {
+        //location.replace("http://localhost/final-midterm-2023/index.html");
+      }
+
+        $("#loginBtn").click((e) => {
+          e.preventDefault();
+
+          let data = FormValidation.serialize_form("#login-form");
+
+          $.get(Constants.get_api_base_url() + "rest/final/login", data)
+            .done(function (response) {
+                console.log(response);
+                set_to_localstorage("user", response);
+                token = response.token;
+                
+                if(token) {
+                  //location.replace("http://localhost/final-midterm-2023/index.html");
+                }
+            })
+            .fail(function() {
+                console.log("An error occured");
+            });
+        });
+      });
+    </script>
+  </body>
+</html>

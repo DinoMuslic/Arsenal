@@ -1,0 +1,47 @@
+<div class="h-100 d-flex align-items-center justify-content-center flex-column">
+    <div class="fs-1">ADMIN PAGE</div>
+
+    <div><br></div>
+
+    <form method="post" id="register-form" class="border border-primary rounded p-5">
+        <div class="fs-4 text-primary">REGISTER FORM</div> <br>
+
+        <!-- <input type="hidden" name="id" id="id" /> -->
+
+        <div class="mb-3">
+          <label for="exampleInputName" class="form-label">City Name</label>
+          <input name="name" class="form-control" id="exampleInputName">
+        </div>
+
+        <div class="mb-3">
+            <label for="exampleInputzip_code" class="form-label">Zip Code</label>
+            <input name="zip_code" class="form-control" id="exampleInputzip_code">
+        </div>
+        <br>
+        <button id="submitBtn" type="submit" class="btn btn-outline-primary">Add City</button>
+    </form>
+</div>
+
+
+<script>
+    $("#submitBtn").click(e => {
+            e.preventDefault();
+
+            let data = FormValidation.serialize_form("#register-form");
+            console.log(data);
+
+            $(':input','#register-form')
+                .not(':button, :submit, :reset, :hidden')
+                .val('')
+                .prop('checked', false)
+                .prop('selected', false);
+            
+                $.post(Constants.get_api_base_url() + "backend/add_city.php", data)
+                .done(function (data) {
+                    toastr.success("User Registered");
+                })
+                .fail(function() {
+                    toastr.error("An error occured");
+                });
+        });
+</script>

@@ -1,0 +1,60 @@
+<div class="h-100 d-flex align-items-center justify-content-center">
+    <form method="post" id="register-form" class="border border-primary rounded p-5">
+        <div class="fs-4 text-primary">REGISTER FORM</div> <br>
+
+        <!-- <input type="hidden" name="id" id="id" /> -->
+
+        <div class="mb-3">
+          <label for="exampleInputName" class="form-label">Name</label>
+          <input name="name" class="form-control" id="exampleInputName">
+        </div>
+
+        <div class="mb-3">
+            <label for="exampleInputSurname" class="form-label">Surname</label>
+            <input name="surname" class="form-control" id="exampleInputSurname">
+        </div>
+
+        <div class="mb-3">
+            <label for="exampleInputAge1" class="form-label">Age</label>
+            <input name="age" class="form-control" id="exampleInputAge1">
+        </div>
+
+        <div class="mb-3">
+            <label for="exampleInputEmail1" class="form-label">Email address</label>
+            <input name="email" class="form-control" id="exampleInputEmail1">
+        </div>
+
+        <div class="mb-3">
+            <label for="exampleInputPassword1" class="form-label">Password</label>
+            <input type="password" name="password" class="form-control" id="exampleInputPassword1">
+        </div>
+
+        <a style="text-decoration: none;" href="#login">Already have an Account?</a>
+        <br><br>
+        <button id="submitBtn" type="submit" class="btn btn-outline-primary">Register</button>
+    </form>
+</div>
+
+
+<script>
+    $("#submitBtn").click(e => {
+        e.preventDefault();
+
+        let data = FormValidation.serialize_form("#register-form");
+        console.log(data);
+
+        $(':input','#register-form')
+            .not(':button, :submit, :reset, :hidden')
+            .val('')
+            .prop('checked', false)
+            .prop('selected', false);
+        
+            $.post(Constants.get_api_base_url() + "backend/add_user.php", data)
+            .done(function (data) {
+                toastr.success("User Registered");
+            })
+            .fail(function() {
+                toastr.error("An error occured");
+            });
+    });
+</script>
